@@ -36,12 +36,18 @@ LOGGER = logging.getLogger(__name__)
 class UserUnitTests(unittest.TestCase):
 
     def test_new_user_admin(self):
-        user = create_user("bot", "bobpass","admin")
+        user = create_user("bot", "bobpass", "admin")
         assert user.username == "bot"
+        assert user.role == "admin"
+        from App.models import Admin
+        assert isinstance(user, Admin)
 
     def test_new_user_staff(self):
-        user = create_user("pam", "pampass","staff")
+        user = create_user("pam", "pampass", "staff")
         assert user.username == "pam"
+        assert user.role == "staff"
+        from App.models import Staff
+        assert isinstance(user, Staff)
 
     def test_create_user_invalid_role(self):
         user = create_user("jim", "jimpass","ceo")
@@ -422,17 +428,17 @@ class AdminUnitTests(unittest.TestCase):
         assert isinstance(shift, Shift)
 
     def test_schedule_shift_invalid(self):
-        admin = User("admin2", "adminpass", "admin")
-        staff = User("staff2", "staffpass", "staff")
+        admin = create_user("admin2", "adminpass", "admin")
+        staff = create_user("staff2", "staffpass", "staff")
         invalid_schedule_id = 999
 
         start = datetime(2025, 10, 22, 8, 0, 0)
         end = datetime(2025, 10, 22, 16, 0, 0)
-        try:
-            shift = schedule_shift(admin.id, staff.id, invalid_schedule_id, start, end)
-            assert shift is None  
-        except Exception:
-            assert True
+
+        with pytest.raises(ValueError) as e:
+            schedule_shift(admin.id, staff.id, invalid_schedule_id, start, end)
+        assert str(e.value) == "Invalid schedule ID"
+
 
     def test_get_shift_report(self):
         admin = create_user("superadmin", "superpass", "admin")
@@ -584,9 +590,12 @@ def empty_db():
     yield app.test_client()
     db.drop_all()
 
-def test_authenticate():
-    user = User("bob", "bobpass","user")
-    assert loginCLI("bob", "bobpass") != None
+def test_authenticate(empty_db):
+    create_user("bob", "bobpass", "user")
+    result = loginCLI("bob", "bobpass")
+    assert result is not None
+    assert "token" in result
+
 
 class UsersIntegrationTests(unittest.TestCase):
 
