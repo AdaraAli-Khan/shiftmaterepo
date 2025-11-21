@@ -3,6 +3,7 @@ from datetime import datetime
 import random
 from .SchedulingStrategy import SchedulingStrategy
 
+
 class EvenDistributeStrategy(SchedulingStrategy): # I used random shuffle to ensure fairness to schedule assignments
     
     def generate_schedule(self, staff, shifts, start_date, end_date):
