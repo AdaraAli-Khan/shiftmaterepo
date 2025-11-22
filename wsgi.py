@@ -198,6 +198,63 @@ def view_schedule_command(schedule_id):
         print(f"✅ Viewing schedule {schedule_id}:")
         print(schedule.get_json())
 
+
+@schedule_cli.command("auto", help="Auto-generate schedule using AI strategies (SPECIAL FEATURE)")
+@click.argument("strategy", default="even-distribute")
+@click.option("--days", default=7, help="Number of days to schedule")
+def auto_schedule_command(strategy, days):
+    """
+    Auto-populate schedule using intelligent scheduling strategies.
+    
+    Strategies available:
+    - even-distribute: Fairly distribute shifts across all staff
+    - minimize-days: Minimize total days each staff member works
+    - preference-based: Match shifts to staff shift type preferences
+    
+    Example:
+    $ flask schedule auto even-distribute --days 14
+    """
+    from App.controllers.scheduling import schedule_client
+    from App.models import Staff
+    from datetime import datetime, timedelta
+    
+    admin = require_admin_login()
+    
+    # Get all available staff
+    staff_list = Staff.query.all()
+    if not staff_list:
+        print("No staff available. Create staff members first.")
+        return
+    
+    # Set date range
+    start_date = datetime.now().date()
+    end_date = start_date + timedelta(days=days)
+    
+    # Validate strategy
+    available = schedule_client.get_available_strategies()
+    if strategy not in available:
+        print(f" Invalid strategy. Available: {', '.join(available)}")
+        return
+    
+    try:
+        print(f" Generating {strategy} schedule for {len(staff_list)} staff over {days} days...")
+        result = schedule_client.auto_populate(
+            admin_id=admin.id,
+            strategy_name=strategy,
+            staff_list=staff_list,
+            start_date=start_date,
+            end_date=end_date,
+            shifts_per_day=2
+        )
+        
+        print(f"\n Schedule auto-generated using '{strategy}' strategy!")
+        print(f" Schedule ID: {result['schedule'].id}")
+        print(f"Performance Score: {result['score']:.2f}")
+        print(f"\ Summary:\n{result['summary']}")
+        
+    except Exception as e:
+        print(f" Failed to auto-generate schedule: {str(e)}")
+
 app.cli.add_command(schedule_cli)
 '''
 Test Commands
