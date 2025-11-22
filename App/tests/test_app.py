@@ -5,6 +5,7 @@ import time
 from App.database import db, create_db
 from datetime import datetime, timedelta
 from App.models import User, Schedule, Shift
+
 from App.controllers import (
     create_user,
     get_all_users_json,
@@ -16,7 +17,8 @@ from App.controllers import (
     get_combined_roster,
     clock_in,
     clock_out,
-    get_shift 
+    get_shift,
+    auto_populate,
 )
 from App.controllers.scheduling import (
     Scheduler,
@@ -472,6 +474,153 @@ class AdminUnitTests(unittest.TestCase):
             assert False, "Expected PermissionError for non-admin user"
         except PermissionError as e:
             assert str(e) == "Only admins can view shift reports"
+
+#New tests for Admin.auto_populate
+class AdminAutoPopulateTests(unittest.TestCase):
+    """
+    Tests for the Admin.auto_populate() controller function.
+    """
+
+    def test_auto_populate_creates_schedule_and_shifts(self):
+        admin = create_user("admin_auto", "pass", "admin")
+        staff1 = create_user("auto_staff1", "pass", "staff")
+        staff2 = create_user("auto_staff2", "pass", "staff")
+
+        # 3 days, 2 shifts per day
+        start_date = datetime(2025, 1, 1)
+        end_date = datetime(2025, 1, 3)
+        shifts_per_day = 2
+
+        schedule = auto_populate(
+            admin_id=admin.id,
+            strategy_name="even_distribute",
+            staff_list=[staff1, staff2],
+            start_date=start_date,
+            end_date=end_date,
+            shifts_per_day=shifts_per_day,
+            shift_length_hours=8,
+        )
+
+        assert isinstance(schedule, Schedule)
+        assert schedule.id is not None
+
+        expected_shifts = 3 * shifts_per_day
+        shifts = Shift.query.filter_by(schedule_id=schedule.id).all()
+        assert len(shifts) == expected_shifts
+
+        staff_ids = {staff1.id, staff2.id}
+        assert all(s.staff_id in staff_ids for s in shifts)
+        assert all(s.start_time < s.end_time for s in shifts)
+
+    def test_auto_populate_distribution_reasonable(self):
+        """
+        Distribution between staff should be reasonably fair (difference <= 1).
+        """
+        admin = create_user("admin_rr", "pass", "admin")
+        staff1 = create_user("rr_staff1", "pass", "staff")
+        staff2 = create_user("rr_staff2", "pass", "staff")
+
+        start_date = datetime(2025, 2, 1)
+        end_date = datetime(2025, 2, 4)  # 4 days, 1 shift/day
+
+        schedule = auto_populate(
+            admin_id=admin.id,
+            strategy_name="even_distribute",
+            staff_list=[staff1, staff2],
+            start_date=start_date,
+            end_date=end_date,
+            shifts_per_day=1,
+            shift_length_hours=8,
+        )
+
+        shifts = Shift.query.filter_by(schedule_id=schedule.id).all()
+        assert len(shifts) == 4
+
+        count1 = sum(1 for s in shifts if s.staff_id == staff1.id)
+        count2 = sum(1 for s in shifts if s.staff_id == staff2.id)
+        assert abs(count1 - count2) <= 1
+
+    def test_auto_populate_requires_admin(self):
+        admin = create_user("admin_ok", "pass", "admin")
+        staff_user = create_user("not_admin", "pass", "staff")
+
+        start_date = datetime(2025, 3, 1)
+        end_date = datetime(2025, 3, 2)
+
+        # non-admin should not be allowed
+        with pytest.raises(PermissionError) as e:
+            auto_populate(
+                admin_id=staff_user.id,   # NOT an admin
+                strategy_name="even_distribute",
+                staff_list=[staff_user],
+                start_date=start_date,
+                end_date=end_date,
+                shifts_per_day=1,
+            )
+        # match your existing _ensure_admin message
+        assert str(e.value) == "Only admins can view shift reports"
+
+        # sanity check: admin path works
+        schedule = auto_populate(
+            admin_id=admin.id,
+            strategy_name="even_distribute",
+            staff_list=[staff_user],
+            start_date=start_date,
+            end_date=end_date,
+            shifts_per_day=1,
+        )
+        assert isinstance(schedule, Schedule)
+
+    def test_auto_populate_empty_staff_list_invalid(self):
+        admin = create_user("admin_empty", "pass", "admin")
+        start_date = datetime(2025, 4, 1)
+        end_date = datetime(2025, 4, 1)
+
+        with pytest.raises(ValueError) as e:
+            auto_populate(
+                admin_id=admin.id,
+                strategy_name="even_distribute",
+                staff_list=[],          # ❌ no staff
+                start_date=start_date,
+                end_date=end_date,
+                shifts_per_day=1,
+            )
+        assert "Staff list cannot be empty" in str(e.value)
+
+    def test_auto_populate_invalid_dates(self):
+        admin = create_user("admin_dates", "pass", "admin")
+        staff = create_user("staff_dates", "pass", "staff")
+
+        start_date = datetime(2025, 5, 10)
+        end_date = datetime(2025, 5, 1)  # end before start
+
+        with pytest.raises(ValueError):
+            auto_populate(
+                admin_id=admin.id,
+                strategy_name="even_distribute",
+                staff_list=[staff],
+                start_date=start_date,
+                end_date=end_date,
+                shifts_per_day=1,
+            )
+
+    def test_auto_populate_invalid_shifts_per_day(self):
+        admin = create_user("admin_invalid_shifts", "pass", "admin")
+        staff = create_user("staff_invalid_shifts", "pass", "staff")
+
+        start_date = datetime(2025, 6, 1)
+        end_date = datetime(2025, 6, 1)
+
+        with pytest.raises(ValueError):
+            auto_populate(
+                admin_id=admin.id,
+                strategy_name="even_distribute",
+                staff_list=[staff],
+                start_date=start_date,
+                end_date=end_date,
+                shifts_per_day=0,   # ❌ invalid
+            )
+
 
 # Staff unit tests
 class StaffUnitTests(unittest.TestCase):
