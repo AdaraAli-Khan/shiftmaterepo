@@ -10,6 +10,7 @@ from App.controllers import (
     create_user, get_all_users_json, get_all_users, initialize,
     schedule_shift, get_combined_roster, clock_in, clock_out, get_shift_report, login,loginCLI
 )
+from App.controllers import set_preferences, get_preferences
 
 app = create_app()
 migrate = get_migrate(app)
@@ -256,6 +257,41 @@ def auto_schedule_command(strategy, days):
         print(f" Failed to auto-generate schedule: {str(e)}")
 
 app.cli.add_command(schedule_cli)
+
+prefs_cli = AppGroup('prefs', help='Preferences commands')
+
+
+@prefs_cli.command("set", help="Set preferences for a staff user")
+@click.argument("staff_id", type=int)
+@click.option("--preferred", default="", help="Comma separated preferred shift types")
+@click.option("--skills", default="", help="Comma separated skills")
+@click.option("--unavailable", default="", help="Comma separated unavailable weekday ints")
+@click.option("--max_hours", default=None, type=int, help="Max hours per week")
+def prefs_set_command(staff_id, preferred, skills, unavailable, max_hours):
+    prefs = [p for p in preferred.split(",") if p] if preferred else None
+    skills_list = [s for s in skills.split(",") if s] if skills else None
+    unavailable_list = [int(x) for x in unavailable.split(",") if x] if unavailable else None
+    result = set_preferences(
+        staff_id,
+        preferred_shift_types=prefs,
+        skills=skills_list,
+        unavailable_days=unavailable_list,
+        max_hours_per_week=max_hours,
+    )
+    print("✅ Preferences set:")
+    print(result.get_json())
+
+
+@prefs_cli.command("get", help="Get preferences for a staff user")
+@click.argument("staff_id", type=int)
+def prefs_get_command(staff_id):
+    prefs = get_preferences(staff_id)
+    if not prefs:
+        print("No preferences found for this staff user")
+    else:
+        print(prefs)
+
+app.cli.add_command(prefs_cli)
 '''
 Test Commands
 '''

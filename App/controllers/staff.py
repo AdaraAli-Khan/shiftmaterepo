@@ -19,6 +19,8 @@ def clock_in(staff_id, shift_id):
 
     if not shift or shift.staff_id != staff_id:
         raise ValueError("Invalid shift for staff")
+    if shift.clock_in is not None:
+        raise ValueError("Shift already clocked in")
 
     shift.clock_in = datetime.now()
     db.session.commit()
@@ -33,6 +35,8 @@ def clock_out(staff_id, shift_id):
     shift = db.session.get(Shift, shift_id)
     if not shift or shift.staff_id != staff_id:
         raise ValueError("Invalid shift for staff")
+    if shift.clock_out is not None:
+        raise ValueError("Shift already clocked out")
 
     shift.clock_out = datetime.now()
     db.session.commit()

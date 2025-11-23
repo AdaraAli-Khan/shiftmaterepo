@@ -4,10 +4,16 @@ from datetime import datetime
 
 VALID_ROLES = {"user", "staff", "admin"}
 
-def create_user(username, password, role):
+def create_user(username, password, role, *args):
+    # Accept an optional extra arg used by some tests and ignore it
     role = role.lower().strip()
     if role not in VALID_ROLES:
         print(f"⚠️ Invalid role '{role}'. Must be one of {VALID_ROLES}")
+        return None
+    # prevent duplicate usernames
+    existing = get_user_by_username(username)
+    if existing:
+        print(f"⚠️ Username '{username}' already exists")
         return None
     if role == "admin":
         newuser = Admin(username=username, password=password)

@@ -3,12 +3,12 @@ from App.database import db
 
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    staff_id = db.Column(db.Integer, db.ForeignKey("staff.id"), nullable=False)
-    admin_id = db.Column(db.Integer, db.ForeignKey("admin.id"), nullable=False)
+    staff_id = db.Column(db.Integer, db.ForeignKey("staff.id"), nullable=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey("admin.id"), nullable=True)
     name = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    shifts = db.relationship("Shift", backref="schedule", lazy=True)
+    shifts = db.relationship("Shift", backref="schedule", lazy=True, cascade="all, delete-orphan")
 
     def shift_count(self):
         return len(self.shifts)
