@@ -1,7 +1,16 @@
 ![Tests](https://github.com/uwidcit/flaskmvc/actions/workflows/dev.yml/badge.svg)
 
-# Flask MVC Template
-A template for flask applications structured in the Model View Controller pattern [Demo](https://dcit-flaskmvc.herokuapp.com/). [Postman Collection](https://documenter.getpostman.com/view/583570/2s83zcTnEJ)
+# ShiftMate 3.0 — Flask MVC Workforce Scheduler
+ShiftMate 3.0 is a lightweight Flask-based workforce scheduling system for creating staff accounts, assigning shifts, tracking time, and generating simple reports. It includes automated scheduling strategies (even distribution, minimize days, and shift-type optimization) and per-staff preferences used by the scheduler.
+
+Key features:
+- Create/manage users (admin & staff)
+- Create schedules and assign shifts
+- Clock in / clock out and basic attendance reporting
+- Auto-generate schedules with multiple strategies
+- Per-staff preferences influencing schedule generation
+
+Demo & Postman: [Demo](https://dcit-flaskmvc.herokuapp.com/) · [Postman Collection](https://documenter.getpostman.com/view/583570/2s83zcTnEJ)
 
 
 # Dependencies
@@ -54,32 +63,45 @@ in configuration information via environment tab of your render project's dashbo
 
 ![perms](./images/fig1.png)
 
-# Flask Commands
+# CLI Quick Reference
 
-wsgi.py is a utility script for performing various tasks related to the project. You can use it to import and test any code in the project. 
-You just need create a manager command function, for example:
+The application exposes a number of convenient CLI groups via `wsgi.py`. Use `flask <group> <command>`.
 
-```python
-# inside wsgi.py
+Authentication
+- `flask auth login <username> <password>` — login and save a JWT token for CLI use
+- `flask auth logout <username>` — logout (removes saved token file)
 
-user_cli = AppGroup('user', help='User object commands')
+User management
+- `flask user create <username> <password> <role>` — create a user (role: `admin` or `staff`)
+- `flask user list [string|json]` — list users in text or JSON format
 
-@user_cli.cli.command("create-user")
-@click.argument("username")
-@click.argument("password")
-def create_user_command(username, password):
-    create_user(username, password)
-    print(f'{username} created!')
+Shifts
+- `flask shift schedule <staff_id> <schedule_id> <start_iso> <end_iso>` — schedule a shift (admin)
+- `flask shift roster` — show combined roster for logged-in staff
+- `flask shift clockin <shift_id>` — clock in (staff)
+- `flask shift clockout <shift_id>` — clock out (staff)
+- `flask shift report` — view shift report (admin)
 
-app.cli.add_command(user_cli) # add the group to the cli
+Schedule management
+- `flask schedule create <name>` — create a schedule (admin)
+- `flask schedule list` — list schedules (admin)
+- `flask schedule view <schedule_id>` — view a schedule and its shifts (admin)
+- `flask schedule auto <strategy> [--days N]` — auto-generate a schedule using a strategy (admin)
+    - Example strategies: `even-distribute`, `minimize-days`, `preference-based`
+    - Example: `flask schedule auto even-distribute --days 14`
 
-```
-
-Then execute the command invoking with flask cli with command name and the relevant parameters
+Preferences (per-staff)
+The `prefs` CLI uses flags for each preference field. Example:
 
 ```bash
-$ flask user create bob bobpass
+# set preferences using CLI flags
+flask prefs set <staff_id> --preferred "morning,evening" --skills "cashier" --unavailable "0,6" --max_hours 40
+
+# get preferences
+flask prefs get <staff_id>
 ```
+
+Note: the `--preferred`, `--skills`, and `--unavailable` flags accept comma-separated values when using the CLI; the controllers accept Python lists when called from code.
 
 
 # Running the Project
@@ -176,6 +198,21 @@ After flask type schedule view and the schedule id
 flask schedule view 1 
 ```
 
+# Preferences
+Per-staff preferences influence scheduling decisions. Stored fields:
+- `preferred_shift_types` — list of strings (e.g. `['morning','evening']`)
+- `skills` — list of strings
+- `unavailable_days` — list of weekday integers `0..6` (Sunday=0)
+- `max_hours_per_week` — integer (0..168)
+
+Use the controller helpers in `App/controllers/preferences.py`: `get_preferences(staff_id)` and `set_preferences(staff_id, ...)`.
+
+CLI examples (use flags):
+```bash
+flask prefs set 5 --preferred "morning,evening" --skills "cashier" --unavailable "0,6" --max_hours 40
+flask prefs get 5
+```
+
 # Database Migrations
 If changes to the models are made, the database must be'migrated' so that it can be synced with the new models.
 Then execute following commands using manage.py. More info [here](https://flask-migrate.readthedocs.io/en/latest/)
@@ -204,18 +241,32 @@ def user_tests_command(type):
         sys.exit(pytest.main(["-k", "User"]))
 ```
 
-You can then execute all user tests as follows
+# Testing commands
+
+The `wsgi.py` `test` group exposes a small helper for running the `User` test group:
 
 ```bash
-$ flask test user
+# Run all user tests
+flask test user
+
+# Run only user unit tests
+flask test user unit
+
+# Run only user integration tests
+flask test user int
 ```
 
-You can also supply "unit" or "int" at the end of the comand to execute only unit or integration tests.
-
-You can run all application tests with the following command
+For other groups (preferences, scheduling, etc.) use `pytest` directly and filter by test class name with `-k`.
 
 ```bash
-$ pytest
+# run all tests
+pytest
+
+# run only preference unit tests (from `App/tests/test_app.py`)
+pytest -k PreferencesUnitTests
+
+# run only preference integration tests
+pytest -k PreferencesIntegrationTests
 ```
 
 ## Test Coverage
@@ -231,6 +282,11 @@ You can also generate a detailed html report in a directory named htmlcov with t
 ```bash
 $ coverage html
 ```
+
+### Notes
+- The CLI `prefs` commands are convenience wrappers — when calling the controllers directly from Python pass proper Python lists (not comma-separated strings).
+- If you add or change models, run the Flask-Migrate commands to create and apply migrations.
+- Keep `App/models/__init__.py` up-to-date so in-memory DB creation for tests imports all models before `create_all()`.
 
 # Troubleshooting
 
