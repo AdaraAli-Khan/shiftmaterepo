@@ -244,6 +244,36 @@ class PreferencesUnitTests(unittest.TestCase):
         got = get_preferences(staff.id)
         self.assertIsNone(got)
 
+    def test_unavailable_days_invalid_shape(self):
+        from App.controllers import create_user
+        from App.controllers.preferences import set_preferences
+
+        staff = create_user("pref_bad_days", "pass", "staff")
+        with self.assertRaises(ValueError):
+            set_preferences(staff.id, unavailable_days=["Mon"])
+
+    def test_max_hours_per_week_boundaries(self):
+        from App.controllers import create_user
+        from App.controllers.preferences import set_preferences, get_preferences
+
+        staff = create_user("pref_hours", "pass", "staff")
+
+        # valid boundaries
+        set_preferences(staff.id, max_hours_per_week=0)
+        got = get_preferences(staff.id)
+        self.assertEqual(got["max_hours_per_week"], 0)
+
+        set_preferences(staff.id, max_hours_per_week=168)
+        got = get_preferences(staff.id)
+        self.assertEqual(got["max_hours_per_week"], 168)
+
+        # invalid boundaries
+        with self.assertRaises(ValueError):
+            set_preferences(staff.id, max_hours_per_week=-1)
+
+        with self.assertRaises(ValueError):
+            set_preferences(staff.id, max_hours_per_week=169)
+
 
 class PreferencesIntegrationTests(unittest.TestCase):
     def setUp(self):
