@@ -1,348 +1,224 @@
-
-import sys
-import os
-#i Add the project root to Python path so we can import App 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_dir)))
-sys.path.insert(0, project_root)
-
-from App.models import Schedule, Shift, Staff
+# In App/controllers/scheduling/schedule_client.py
+from .EvenDistributeStrategy import EvenDistributeStrategy
+from .MinimizeStrategy import MinimizeDaysStrategy
+from .PreferenceBasedStrategy import PreferenceBasedStrategy
+from .DayNightDistributeStrategy import DayNightDistributeStrategy
+from App.models import Shift
 from App.database import db
-from datetime import datetime, date, timedelta
-import random
+from datetime import datetime, timedelta
 
 class ScheduleClient:
     def __init__(self):
-        pass
+        self.strategies = {
+            "even-distribute": EvenDistributeStrategy(),
+            "minimize-days": MinimizeDaysStrategy(),
+            "preference-based": PreferenceBasedStrategy(),
+            "day-night-distribute": DayNightDistributeStrategy()
+        }
+    
+    def generate_schedule(self, strategy_name, staff, shifts, start_date, end_date):
+        """
+        Generate schedule using the specified strategy
+        """
+        if strategy_name not in self.strategies:
+            raise ValueError(f"Unknown strategy: {strategy_name}")
+        
+        strategy = self.strategies[strategy_name]
+        return strategy.generate_schedule(staff, shifts, start_date, end_date)
     
     def auto_populate(self, admin_id, schedule_id, strategy_name, staff_list, start_date, end_date, shifts_per_day=2, shift_type='mixed'):
         """
-        Auto-populate schedule using different strategies
+        Auto-populate schedule with shifts using specified strategy
+        Returns result dict for CLI to display
         """
+        # Input validation
+        if not staff_list:
+            raise ValueError("Staff list cannot be empty")
+        
+        if start_date > end_date:
+            raise ValueError("Start date must be before end date")
+        
+        if shifts_per_day <= 0:
+            raise ValueError("Shifts per day must be positive")
+        
         try:
             # Clear existing shifts for this schedule
-            self._clear_existing_shifts(schedule_id, start_date, end_date)
+            deleted_count = self._clear_existing_shifts(schedule_id, start_date, end_date)
             
-            if strategy_name == "even-distribute":
-                return self._even_distribute_strategy(admin_id, schedule_id, staff_list, start_date, end_date, shifts_per_day, shift_type)
-            elif strategy_name == "minimize-days":
-                return self._minimize_days_strategy(admin_id, schedule_id, staff_list, start_date, end_date, shifts_per_day, shift_type)
-            elif strategy_name == "preference-based":
-                return self._preference_based_strategy(admin_id, schedule_id, staff_list, start_date, end_date, shifts_per_day, shift_type)
-            elif strategy_name == "day-night-distribute":
-                return self._day_night_distribute_strategy(admin_id, schedule_id, staff_list, start_date, end_date, shifts_per_day)
-            else:
-                raise ValueError(f"Unknown strategy: {strategy_name}")
+            # Generate shifts for the period
+            shifts = self._generate_shifts_for_period(schedule_id, start_date, end_date, shifts_per_day, shift_type)
+            
+            # Use strategy to assign shifts
+            result = self.generate_schedule(
+                strategy_name=strategy_name,
+                staff=staff_list,
+                shifts=shifts,
+                start_date=start_date,
+                end_date=end_date
+            )
+            
+            # Save shifts to database
+            shifts_created = self._save_shifts_to_db(schedule_id, shifts)
+            
+            # Validate results
+            summary = result.get('summary', {})
+            self._validate_schedule_results(summary, len(staff_list))
+            
+            return {
+                "success": True,
+                "schedule_id": schedule_id,
+                "shifts_created": shifts_created,
+                "shifts_deleted": deleted_count,
+                "score": result.get('score', 0),
+                "summary": summary,  # Return raw summary for CLI to format
+                "assignments": self._get_assignments_list(shifts),  # Add assignments for CLI display
+                "strategy_used": strategy_name
+            }
                 
         except Exception as e:
-            raise Exception(f"Failed to auto-populate schedule: {str(e)}")
-    
+            db.session.rollback()
+            return {
+                "success": False,
+                "message": f"Failed to auto-generate schedule: {str(e)}"
+            }
+
+    def _get_assignments_list(self, shifts):
+        """Get list of assignments for CLI display"""
+        assignments = []
+        for shift in shifts:
+            if hasattr(shift, 'assigned_staff') and shift.assigned_staff:
+                for staff in shift.assigned_staff:
+                    staff_id = getattr(staff, 'id', 'Unknown')
+                    assignments.append({
+                        'staff_id': staff_id,
+                        'start_time': shift.start_time,
+                        'end_time': shift.end_time
+                    })
+        return assignments
+
+    def _validate_schedule_results(self, summary, staff_count):
+        """Validate that the schedule results are reasonable"""
+        if not summary:
+            return
+        
+        # Check for extreme imbalances
+        if summary.get('max_hours', 0) - summary.get('min_hours', 0) > 20:
+            raise ValueError("Schedule too unbalanced - hour difference exceeds 20 hours")
+        
+        # Check if all staff got reasonable assignments
+        if summary.get('total_shifts_assigned', 0) < staff_count:
+            raise ValueError("Not enough shifts assigned - some staff may have no shifts")
+        
+        # Check for reasonable distribution
+        if summary.get('max_hours', 0) > summary.get('average_hours_per_staff', 0) * 1.5:
+            raise ValueError("Schedule distribution too uneven")
+
     def _clear_existing_shifts(self, schedule_id, start_date, end_date):
         """Clear existing shifts in the date range"""
+        start_datetime = datetime.combine(start_date, datetime.min.time())
+        end_datetime = datetime.combine(end_date, datetime.max.time())
+        
         shifts = Shift.query.filter(
             Shift.schedule_id == schedule_id,
-            Shift.start_time >= datetime.combine(start_date, datetime.min.time()),
-            Shift.start_time <= datetime.combine(end_date, datetime.max.time())
+            Shift.start_time >= start_datetime,
+            Shift.start_time <= end_datetime
         ).all()
         
         for shift in shifts:
             db.session.delete(shift)
         db.session.commit()
-    
-    def _even_distribute_strategy(self, admin_id, schedule_id, staff_list, start_date, end_date, shifts_per_day, shift_type):
-        """Distribute shifts evenly among all staff"""
+        
+        return len(shifts)
+
+    def _save_shifts_to_db(self, schedule_id, shifts):
+        """Save assigned shifts to database and return count"""
         shifts_created = 0
-        staff_count = len(staff_list)
         
-        if staff_count == 0:
-            return {"success": False, "message": "No staff available"}
-        
-        # Calculate total shifts and target per staff
-        day_count = (end_date - start_date).days + 1
-        total_shifts = day_count * shifts_per_day
-        target_per_staff = max(1, total_shifts // staff_count)
-        
-        staff_shifts = {staff.id: 0 for staff in staff_list}
-        current_date = start_date
-        
-        # Generate shifts evenly distributed
-        while current_date <= end_date:
-            for shift_num in range(shifts_per_day):
-                # Find staff with least shifts assigned
-                available_staff = [s for s in staff_list if staff_shifts[s.id] < target_per_staff]
-                if not available_staff:
-                    available_staff = staff_list
-                
-                staff = min(available_staff, key=lambda x: staff_shifts[x.id])
-                
-                # Create shift times based on shift type
-                shift_times = self._get_shift_times(current_date, shift_num, shifts_per_day, shift_type)
-                if shift_times:
-                    shift = Shift(
-                        schedule_id=schedule_id,
-                        staff_id=staff.id,
-                        start_time=shift_times['start'],
-                        end_time=shift_times['end']
-                       
-                    )
-                    db.session.add(shift)
-                    staff_shifts[staff.id] += 1
-                    shifts_created += 1
-            
-            current_date += timedelta(days=1)
-        
-        db.session.commit()
-        
-        summary = self._generate_distribution_summary(staff_shifts, staff_list)
-        score = self._calculate_fairness_score(staff_shifts)
-        
-        return {
-            "success": True,
-            "schedule": db.session.get(Schedule, schedule_id),
-            "shifts_created": shifts_created,
-            "score": score,
-            "summary": summary
-        }
-    
-    def _minimize_days_strategy(self, admin_id, schedule_id, staff_list, start_date, end_date, shifts_per_day, shift_type):
-        """Minimize number of days each staff works"""
-        shifts_created = 0
-        day_count = (end_date - start_date).days + 1
-        staff_count = len(staff_list)
-        
-        # Calculate target days per staff 
-        target_days_per_staff = max(2, (day_count * 2) // staff_count)
-        
-        staff_days = {staff.id: set() for staff in staff_list}
-        current_date = start_date
-        
-        # Assign multiple shifts per day to minimize work days
-        for staff in staff_list:
-            days_assigned = 0
-            temp_date = current_date
-            
-            while days_assigned < target_days_per_staff and temp_date <= end_date:
-                # Assign all shifts for this day to the same staff
-                for shift_num in range(shifts_per_day):
-                    shift_times = self._get_shift_times(temp_date, shift_num, shifts_per_day, shift_type)
-                    if shift_times:
-                        shift = Shift(
-                            schedule_id=schedule_id,
-                            staff_id=staff.id,
-                            start_time=shift_times['start'],
-                            end_time=shift_times['end']
-                            
-                        )
-                        db.session.add(shift)
-                        shifts_created += 1
-                
-                staff_days[staff.id].add(temp_date)
-                days_assigned += 1
-                # Skip days to spread out assignments
-                temp_date += timedelta(days=max(1, day_count // target_days_per_staff))
-        
-        db.session.commit()
-        
-        summary = self._generate_minimize_days_summary(staff_days, staff_list)
-        score = self._calculate_efficiency_score(staff_days, day_count)
-        
-        return {
-            "success": True,
-            "schedule": db.session.get(Schedule, schedule_id),
-            "shifts_created": shifts_created,
-            "score": score,
-            "summary": summary
-        }
-    
-    def _preference_based_strategy(self, admin_id, schedule_id, staff_list, start_date, end_date, shifts_per_day, shift_type):
-        """Assign shifts based on staff preferences"""
-        shifts_created = 0
-        current_date = start_date
-        
-        # Simulate preference-based assignment
-        # In a real system, this would use actual staff preferences
-        staff_preferences = {}
-        for staff in staff_list:
-            # Simulate random preferences for demonstration
-            preferred_shifts = random.sample(['morning', 'evening', 'night'], random.randint(1, 2))
-            staff_preferences[staff.id] = preferred_shifts
-        
-        while current_date <= end_date:
-            for shift_num in range(shifts_per_day):
-                shift_times = self._get_shift_times(current_date, shift_num, shifts_per_day, shift_type)
-                if not shift_times:
-                    continue
-                
-                # Determine shift type for preference matching
-                current_shift_type = 'morning' if shift_num == 0 else 'evening'
-                
-                # Find staff who prefer this shift type
-                preferred_staff = [s for s in staff_list if current_shift_type in staff_preferences.get(s.id, [])]
-                if not preferred_staff:
-                    preferred_staff = staff_list
-                
-                # Assign to random preferred staff
-                staff = random.choice(preferred_staff)
-                
-                shift = Shift(
-                    schedule_id=schedule_id,
-                    staff_id=staff.id,
-                    start_time=shift_times['start'],
-                    end_time=shift_times['end']
-                   
-                )
-                db.session.add(shift)
-                shifts_created += 1
-            
-            current_date += timedelta(days=1)
-        
-        db.session.commit()
-        
-        summary = f"Preference-based assignment completed. Assigned {shifts_created} shifts based on staff preferences."
-        score = 85.0  
-        
-        return {
-            "success": True,
-            "schedule": db.session.get(Schedule, schedule_id),
-            "shifts_created": shifts_created,
-            "score": score,
-            "summary": summary
-        }
-    
-    def _day_night_distribute_strategy(self, admin_id, schedule_id, staff_list, start_date, end_date, shifts_per_day):
-        """Distribute day and night shifts evenly among staff"""
-        shifts_created = 0
-        staff_count = len(staff_list)
-        
-        if staff_count < 2:
-            return {"success": False, "message": "Need at least 2 staff for day/night distribution"}
-        
-        # Split staff into day and night preference groups
-        day_staff = staff_list[:staff_count//2]
-        night_staff = staff_list[staff_count//2:]
-        
-        day_shifts_count = {staff.id: 0 for staff in day_staff}
-        night_shifts_count = {staff.id: 0 for staff in night_staff}
-        
-        current_date = start_date
-        
-        while current_date <= end_date:
-            # Day shift (first shift)
-            if day_staff:
-                staff = min(day_staff, key=lambda x: day_shifts_count[x.id])
-                shift_times = self._get_shift_times(current_date, 0, shifts_per_day, 'day')
-                if shift_times:
-                    shift = Shift(
-                        schedule_id=schedule_id,
-                        staff_id=staff.id,
-                        start_time=shift_times['start'],
-                        end_time=shift_times['end']
+        for shift in shifts:
+            if hasattr(shift, 'assigned_staff') and shift.assigned_staff:
+                for staff in shift.assigned_staff:
+                    try:
+                        # Get staff ID safely
+                        staff_id = getattr(staff, 'id', None)
+                        if staff_id is None:
+                            continue
                         
-                    )
-                    db.session.add(shift)
-                    day_shifts_count[staff.id] += 1
-                    shifts_created += 1
-            
-            # Night shift (second shift)
-            if night_staff and shifts_per_day > 1:
-                staff = min(night_staff, key=lambda x: night_shifts_count[x.id])
-                shift_times = self._get_shift_times(current_date, 1, shifts_per_day, 'night')
-                if shift_times:
-                    shift = Shift(
-                        schedule_id=schedule_id,
-                        staff_id=staff.id,
-                        start_time=shift_times['start'],
-                        end_time=shift_times['end']
-                    
-                    )
-                    db.session.add(shift)
-                    night_shifts_count[staff.id] += 1
-                    shifts_created += 1
+                        new_shift = Shift(
+                            schedule_id=schedule_id,
+                            staff_id=staff_id,
+                            start_time=shift.start_time,
+                            end_time=shift.end_time
+                        )
+                        db.session.add(new_shift)
+                        shifts_created += 1
+                    except Exception as e:
+                        # Log error but don't print - let CLI handle display
+                        continue
+        
+        try:
+            db.session.commit()
+            return shifts_created
+        except Exception as e:
+            db.session.rollback()
+            raise
+        
+    def _generate_shifts_for_period(self, schedule_id, start_date, end_date, shifts_per_day, shift_type):
+        """Generate shift objects for the given period"""
+        shifts = []
+        current_date = start_date
+        
+        while current_date <= end_date:
+            for shift_num in range(shifts_per_day):
+                shift_times = self._get_shift_times(current_date, shift_num, shifts_per_day, shift_type)
+                
+                class MockShift:
+                    def __init__(self, start_time, end_time):
+                        self.start_time = start_time
+                        self.end_time = end_time
+                        self.assigned_staff = []
+                        self.required_staff = 1
+                        self.duration_hours = (end_time - start_time).total_seconds() / 3600
+                        self.required_skills = []
+                        self.shift_type = shift_type
+                
+                shift = MockShift(shift_times['start'], shift_times['end'])
+                shifts.append(shift)
             
             current_date += timedelta(days=1)
         
-        db.session.commit()
-        
-        summary = f"Day/Night distribution: {len(day_staff)} day staff, {len(night_staff)} night staff. Total shifts: {shifts_created}"
-        score = 88.0
-        
-        return {
-            "success": True,
-            "schedule": db.session.get(Schedule, schedule_id),
-            "shifts_created": shifts_created,
-            "score": score,
-            "summary": summary
-        }
+        return shifts
     
     def _get_shift_times(self, date, shift_num, shifts_per_day, shift_type):
-        """Generate shift times based on shift type and number"""
+        """Generate shift times based on shift type"""
         base_date = datetime.combine(date, datetime.min.time())
         
         if shift_type == 'day':
-            # Day shifts: 8am-4pm, 9am-5pm, etc.
             start_hour = 8 + shift_num
             return {
                 'start': base_date.replace(hour=start_hour),
                 'end': base_date.replace(hour=start_hour + 8)
             }
         elif shift_type == 'night':
-            # Night shifts: 10pm-6am, 11pm-7am, etc.
             start_hour = 22 + shift_num
-            end_date = date + timedelta(days=1)  # Night shift spans two days
+            end_date = date + timedelta(days=1)
             return {
                 'start': base_date.replace(hour=start_hour),
                 'end': datetime.combine(end_date, datetime.min.time()).replace(hour=(start_hour + 8) % 24)
             }
         else:  # mixed
-            if shift_num == 0:  # Morning shift
+            if shift_num == 0:  # Morning
                 return {
                     'start': base_date.replace(hour=8),
                     'end': base_date.replace(hour=16)
                 }
-            else:  # Evening shift
+            else:  # Evening
                 return {
                     'start': base_date.replace(hour=16),
                     'end': base_date.replace(hour=23, minute=59)
                 }
     
-    def _generate_distribution_summary(self, staff_shifts, staff_list):
-        """Generate summary for even distribution"""
-        summary = "Even Distribution Summary:\n"
-        for staff in staff_list:
-            summary += f"  {staff.username}: {staff_shifts[staff.id]} shifts\n"
-        avg_shifts = sum(staff_shifts.values()) / len(staff_shifts) if staff_shifts else 0
-        summary += f"Average shifts per staff: {avg_shifts:.1f}"
-        return summary
-    
-    def _generate_minimize_days_summary(self, staff_days, staff_list):
-        """Generate summary for minimize days strategy"""
-        summary = "Minimize Days Summary:\n"
-        for staff in staff_list:
-            summary += f"  {staff.username}: {len(staff_days[staff.id])} work days\n"
-        avg_days = sum(len(days) for days in staff_days.values()) / len(staff_days) if staff_days else 0
-        summary += f"Average work days per staff: {avg_days:.1f}"
-        return summary
-    
-    def _calculate_fairness_score(self, staff_shifts):
-        """Calculate fairness score (0-100)"""
-        if not staff_shifts:
-            return 0
-        shifts = list(staff_shifts.values())
-        avg = sum(shifts) / len(shifts)
-        variance = sum((s - avg) ** 2 for s in shifts) / len(shifts)
-        return max(0, 100 - (variance * 10))
-    
-    def _calculate_efficiency_score(self, staff_days, total_days):
-        """Calculate efficiency score for minimize days strategy"""
-        if not staff_days:
-            return 0
-        avg_days = sum(len(days) for days in staff_days.values()) / len(staff_days)
-        efficiency = (total_days - avg_days) / total_days * 100
-        return min(100, max(0, efficiency))
-    
     def get_available_strategies(self):
-        """Get list of available strategies"""
-        return ["even-distribute", "minimize-days", "preference-based", "day-night-distribute"]
+        return list(self.strategies.keys())
 
-# Create global instance
+# Global instance
 schedule_client = ScheduleClient()

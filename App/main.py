@@ -1,9 +1,14 @@
+# App/__init__.py
 import os
 from flask import Flask, render_template
 from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
+
+# COMMENT OUT these two lines:
+# app = create_app()
+# app.register_blueprint(scheduling_api, url_prefix='/api')
 
 from App.database import init_db
 from App.config import load_config
