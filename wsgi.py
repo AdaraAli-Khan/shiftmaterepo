@@ -412,9 +412,9 @@ def auto_schedule_command(schedule_id, strategy, days, shifts_per_day, shift_typ
     
     try:
         print(f"\n🔄 Generating {strategy} schedule...")
-        print(f"   Schedule: {schedule.name} (ID: {schedule_id})")
-        print(f"   Period: {days} days, Shifts/day: {shifts_per_day}, Type: {shift_type}")
-        print(f"   Staff: {len(staff_list)} employees")
+        print(f"   📅 Schedule: {schedule.name} (ID: {schedule_id})")
+        print(f"   📆 Period: {days} days, Shifts/day: {shifts_per_day}, Type: {shift_type}")
+        print(f"   👥 Staff: {len(staff_list)} employees")
         
         result = schedule_client.auto_populate(
             admin_id=admin.id,
@@ -431,17 +431,39 @@ def auto_schedule_command(schedule_id, strategy, days, shifts_per_day, shift_typ
             print(f"\n✅ Schedule auto-generated using '{strategy}' strategy!")
             print(f"📊 Performance Score: {result['score']:.1f}/100")
             print(f"👥 Shifts Created: {result['shifts_created']}")
-            print(f"\n📈 Summary:\n{result['summary']}")
+            
+            # Handle the summary display properly
+            summary = result.get('summary', {})
+            if isinstance(summary, str):
+                # If summary is already a formatted string, just print it
+                print(f"\n📈 Summary:\n{summary}")
+            elif isinstance(summary, dict):
+                # If summary is a dict, display it as a table
+                headers = ["Metric", "Value"]
+                rows = [
+                    ["👥 Total Staff", summary.get('total_staff', 0)],
+                    ["✅ Staff with Assignments", summary.get('staff_with_assignments', 0)],
+                    ["⏰ Total Hours", f"{summary.get('total_hours_assigned', 0):.0f}h"],
+                    ["📈 Average Hours/Staff", f"{summary.get('average_hours_per_staff', 0):.0f}h"],
+                    ["📊 Hours Range", f"{summary.get('min_hours', 0):.0f}h - {summary.get('max_hours', 0):.0f}h"],
+                    ["📅 Total Shifts", summary.get('total_shifts_assigned', 0)],
+                    ["🔄 Shifts Range", f"{summary.get('min_shifts', 0)} - {summary.get('max_shifts', 0)}"],
+                    ["⭐ Fairness Score", f"{summary.get('fairness_score', 0):.0f}/100"]
+                ]
+                print("\n📈 Schedule Summary:")
+                _print_table(headers, rows)
+            else:
+                print(f"\n📈 Summary: {summary}")
         else:
-            print(f"❌ {result['message']}")
+            print(f"❌ Error: {result.get('message', 'Unknown error')}")
         
     except Exception as e:
         print(f"❌ Failed to auto-generate schedule: {str(e)}")
 
+# ⚠️ FIX: Move this line OUTSIDE the function and to the module level
 app.cli.add_command(schedule_cli)
 
 prefs_cli = AppGroup('prefs', help='Preferences commands')
-
 @prefs_cli.command("set", help="Set preferences for a staff user")
 @click.argument("staff_id", type=int)
 @click.option("--preferred", default="", help="Comma separated preferred shift types")

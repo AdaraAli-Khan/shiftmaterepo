@@ -44,6 +44,6 @@ class Staff(User):
 
     @property
     def max_hours_per_week(self):
-        if self.preferences and self.preferences.max_hours_per_week:
+        if self.preferences and self.preferences.max_hours_per_week is not None:
             return self.preferences.max_hours_per_week
         return 40

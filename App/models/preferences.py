@@ -21,5 +21,5 @@ class Preferences(db.Model):
             "preferred_shift_types": self.preferred_shift_types or [],
             "skills": self.skills or [],
             "unavailable_days": self.unavailable_days or [],
-            "max_hours_per_week": self.max_hours_per_week or 40,
+            "max_hours_per_week": self.max_hours_per_week if self.max_hours_per_week is not None else 40,
         }
