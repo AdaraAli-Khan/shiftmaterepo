@@ -62,8 +62,11 @@ class EvenDistributeStrategy(SchedulingStrategy):
         }
         
         return {
+            'strategy': "Even Distribution", 
             'score': summary['fairness_score'],
-            'summary': summary
+            'summary': summary,
+            'schedule': shifts,
+            'fairness_score': summary['fairness_score']
         }
     
     def _get_staff_id(self, staff):
