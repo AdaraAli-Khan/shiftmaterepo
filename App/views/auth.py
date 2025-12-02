@@ -26,7 +26,7 @@ def identify_page():
 
 @auth_views.route('/login', methods=['POST'])
 def login_action():
-    data = request.form
+    data = request.get_json()
     token = login(data['username'], data['password'])
     response = redirect(request.referrer)
     if not token:

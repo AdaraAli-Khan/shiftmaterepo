@@ -7,7 +7,6 @@ from App.controllers import (
     create_user,
     get_all_users,
     get_all_users_json,
-    jwt_required
 )
 
 user_views = Blueprint('user_views', __name__, template_folder='../templates')
@@ -20,8 +19,19 @@ def get_user_page():
 @user_views.route('/users', methods=['POST'])
 def create_user_action():
     data = request.form
-    flash(f"User {data['username']} created!")
-    create_user(data['username'], data['password'])
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        flash("Username and password are required!", "error")
+        return redirect(url_for('user_views.get_user_page'))
+
+    try:
+        create_user(username, password)
+        flash(f"User {username} created!", "success")
+    except Exception as e:
+        flash(f"Error creating user: {str(e)}", "error")
+
     return redirect(url_for('user_views.get_user_page'))
 
 @user_views.route('/api/users', methods=['GET'])
@@ -30,10 +40,19 @@ def get_users_action():
     return jsonify(users)
 
 @user_views.route('/api/users', methods=['POST'])
+@jwt_required()  # Protect this endpoint
 def create_user_endpoint():
-    data = request.json
-    user = create_user(data['username'], data['password'], data['role']) 
-    return jsonify({'message': f"user {user.username} created with id {user.id}"}), 201
+    data = request.get_json()
+
+    # Validation
+    if not data or 'username' not in data or 'password' not in data:
+        return jsonify({"error": "Username and password are required"}), 400
+
+    try:
+        user = create_user(data['username'], data['password'], data.get('role', 'user'))
+        return jsonify({"message": f"User {user.username} created with id {user.id}"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @user_views.route('/static/users', methods=['GET'])
 def static_user_page():

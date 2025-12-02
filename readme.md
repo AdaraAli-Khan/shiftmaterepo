@@ -24,6 +24,9 @@ _For development run the serve command (what you execute):_
 $ flask run
 ```
 
+# Postman Link
+"https://technocrats-1703.postman.co/workspace/TechnoCrats-Workspace~b8d276e5-e552-4175-9811-6bb3893203f9/collection/33787611-dfd6d2cb-ec5e-4bf5-b4b0-912502e9915b?action=share&source=copy-link&creator=33787611"
+
 # CLI Quick Reference
 
 The application exposes a number of convenient CLI groups via `wsgi.py`. Use `flask <group> <command>`.

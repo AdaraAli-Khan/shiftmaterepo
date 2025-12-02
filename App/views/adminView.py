@@ -5,7 +5,7 @@ from App.controllers import staff, auth, admin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import SQLAlchemyError
 
-admin_view = Blueprint('admin_view', __name__, template_folder='../templates')
+admin_view = Blueprint('admin_view', __name__, template_folder='../templates',url_prefix='/admin')
 
 # Admin authentication decorator
 # def admin_required(fn):

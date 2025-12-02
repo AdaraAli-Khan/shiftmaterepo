@@ -44,28 +44,51 @@ def view_shift():
 @jwt_required()
 def clockIn():
     try:
-        staff_id = int(get_jwt_identity())# db uses int for userID so we must convert
+        staff_id = int(get_jwt_identity())  # Ensure it's an integer
+
         data = request.get_json()
-        shift_id = data.get("shiftID")  # gets the shiftID from the request
-        shiftOBJ = staff.clock_in(staff_id, shift_id)  # Call controller
+        if not data or 'shiftID' not in data:
+            return jsonify({"error": "shiftID is required"}), 400
+
+        shift_id = int(data['shiftID'])
+        shiftOBJ = staff.clock_in(staff_id, shift_id)
+
+        if not shiftOBJ:
+            return jsonify({"error": "Shift not found or clock-in failed"}), 404
+
         return jsonify(shiftOBJ.get_json()), 200
+
     except (PermissionError, ValueError) as e:
         return jsonify({"error": str(e)}), 403
     except SQLAlchemyError:
         return jsonify({"error": "Database error"}), 500
+    except Exception as e:
+        # Catch any other unexpected error
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 
 # Staff Clock in endpoint
-@staff_views.route('/staff/clock_out/', methods=['POST'])
+@staff_views.route('/staff/clock_out', methods=['POST'])
 @jwt_required()
 def clock_out():
     try:
-        staff_id = int(get_jwt_identity()) # db uses int for userID so we must convert
+        staff_id = int(get_jwt_identity())  # Ensure it's an integer
+
         data = request.get_json()
-        shift_id = data.get("shiftID")  # gets the shiftID from the request
-        shift = staff.clock_out(staff_id, shift_id)  # Call controller
-        return jsonify(shift.get_json()), 200
+        if not data or 'shiftID' not in data:
+            return jsonify({"error": "shiftID is required"}), 400
+
+        shift_id = int(data['shiftID'])
+        shiftOBJ = staff.clock_out(staff_id, shift_id)
+
+        if not shiftOBJ:
+            return jsonify({"error": "Shift not found or clock-out failed"}), 404
+
+        return jsonify(shiftOBJ.get_json()), 200
+
     except (PermissionError, ValueError) as e:
         return jsonify({"error": str(e)}), 403
     except SQLAlchemyError:
         return jsonify({"error": "Database error"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500

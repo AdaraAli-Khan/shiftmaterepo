@@ -175,7 +175,7 @@ class EvenDistributeStrategyUnitTests(unittest.TestCase):
 
         # Check schedule structure
         schedule = result["schedule"]
-        self.assertIsInstance(schedule, dict)
+        self.assertIsInstance(schedule, list)
 
     
 

@@ -66,11 +66,11 @@ def auto_populate_schedule():
         if result['success']:
             return jsonify({
                 'success': True,
-                'schedule_id': result['schedule'].id,
+                'schedule_id': data['schedule_id'],  # use the schedule ID already passed
                 'strategy_used': data['strategy_name'],
-                'shifts_created': result['shifts_created'],
-                'summary': result['summary'],
-                'score': result['score']
+                'shifts_created': result.get('shifts_created', 0),
+                'summary': result.get('summary', ''),
+                'score': result.get('score', 0)
             }), 201
         else:
             return jsonify({'success': False, 'error': result.get('message', 'Auto-population failed')}), 400
