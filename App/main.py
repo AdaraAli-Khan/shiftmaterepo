@@ -1,4 +1,4 @@
-# App/__init__.py
+# C:\Users\minio\OneDrive\Documents\GitHub\ShiftMate3.0\App\main.py
 import os
 from flask import Flask, render_template
 from flask_uploads import DOCUMENTS, IMAGES, TEXT, UploadSet, configure_uploads
