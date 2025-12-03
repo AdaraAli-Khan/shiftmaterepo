@@ -1926,7 +1926,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "930e7d90-5b46-400e-80ad-ac5d5a95f841",
+				"id": "ee02e7a0-0b6a-43fd-99f8-a05c1bc3c10f",
 				"type": "text/javascript",
 				"requests": {},
 				"exec": [
@@ -1937,7 +1937,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "359286af-0e6d-4d10-81ed-5d05d2a888b9",
+				"id": "5f5b01f3-fd48-4f42-8405-19cd0ac75386",
 				"type": "text/javascript",
 				"requests": {},
 				"exec": [
@@ -1948,9 +1948,19 @@
 	],
 	"variable": [
 		{
-			"id": "10974c8f-d1f3-4b81-8d6e-a271527cc59a",
+			"id": "d08adad3-3c4f-4ab6-a963-a07bae94df44",
 			"key": "base_url",
-			"value": "https://template.postman-echo.com"
+			"value": "https://shiftmate3-0.onrender.com"
+		},
+		{
+			"id": "8e544dd4-b9ed-4622-b890-bcbe78365a71",
+			"key": "Schedule_id",
+			"value": "1"
+		},
+		{
+			"id": "97f47b7d-5f40-4932-8916-ed688318554e",
+			"key": "sessionToken",
+			"value": "7"
 		}
 	]
 }
