@@ -1,5 +1,4 @@
-  
-    # App/database.py
+# App/database.py
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -16,3 +15,10 @@ def init_db(app):
         # Import models so SQLAlchemy knows them (User, etc.)
         from App import models
         db.create_all()
+
+def create_db(app):
+    """
+    Compatibility wrapper for tests.
+    Older tests import create_db(), so we map it to init_db().
+    """
+    init_db(app)
