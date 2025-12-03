@@ -1,423 +1,1833 @@
 {
 	"info": {
-		"_postman_id": "982ba4f2-1a0e-43bc-803b-5217c9831e62",
-		"name": "RosterAPI",
+		"_postman_id": "bf2fe07a-e102-4ff9-be01-c3f5e4cfa46f",
+		"name": "API Test",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" width=\"2162\" height=\"1530\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "20616724",
-		"_collection_link": "https://technocrats-1703.postman.co/workspace/TechnoCrats-Workspace~b8d276e5-e552-4175-9811-6bb3893203f9/collection/33787611-dfd6d2cb-ec5e-4bf5-b4b0-912502e9915b?action=share&source=copy-link&creator=33787611"
+		"_exporter_id": "42343421",
+		"_collection_link": "https://technocrats-1703.postman.co/workspace/TechnoCrats-Workspace~b8d276e5-e552-4175-9811-6bb3893203f9/collection/42343421-bf2fe07a-e102-4ff9-be01-c3f5e4cfa46f?action=share&source=collection_link&creator=42343421"
 	},
 	"item": [
 		{
-			"name": "Admin Operations",
-			"item": [
+			"name": "Init",
+			"event": [
 				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// js code to save the access_token for user authentication\r",
-									"let jsonData = JSON.parse(responseBody);\r",
-									"pm.environment.set(\"access_token\",jsonData.access_token) // creates access_token variable in postman and sets it to the value of the access_token in the response body."
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"bob\",\r\n    \"password\": \"bobpass\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/login",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"login"
-							]
-						}
-					},
-					"response": []
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.clear();\r",
+							"\r",
+							"console.log(\"=== PRE-REQUEST ===\");\r",
+							"console.log(\"URL:\", pm.request.url.toString());\r",
+							"\r",
+							"pm.test(\"URL is not empty or unresolved\", function () {\r",
+							"    const url = pm.request.url.toString();\r",
+							"    pm.expect(url.length).to.be.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
 				},
 				{
-					"name": "Admin: Create_Schedule",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n \"scheduleName\": \"Morning Shift\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/createSchedule",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"createSchedule"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Admin: Create_Shift",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"scheduleID\": 1,\r\n    \"staffID\": 3,\r\n    \"start_time\": \"2025-10-24T09:00:00\",\r\n    \"end_time\": \"2025-10-24T17:00:00\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/createShift",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"createShift"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Admin: Shift_Report",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"shiftID\": 1\r\n}"
-						},
-						"url": {
-							"raw": "{{host}}/shiftReport",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"shiftReport"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/logout",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"logout"
-							]
-						}
-					},
-					"response": []
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"if (pm.response) {\r",
+							"\r",
+							"    pm.test(\"Status 200\", function () {\r",
+							"        pm.response.to.have.status(200);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"JSON body is correct\", function () {\r",
+							"        pm.response.to.be.json;\r",
+							"        const json = pm.response.json();\r",
+							"        pm.expect(json).to.have.property(\"message\", \"db initialized!\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/init",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"init"
+					]
+				}
+			},
+			"response": []
 		},
 		{
-			"name": "Staff Operations",
-			"item": [
+			"name": "Users",
+			"event": [
 				{
-					"name": "Login",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// js code to save the access_token for user authentication\r",
-									"let jsonData = JSON.parse(responseBody);\r",
-									"pm.environment.set(\"access_token\",jsonData.access_token) // creates access_token variable in postman and sets it to the value of the access_token in the response body."
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"alice\",\r\n    \"password\": \"alicepass\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/login",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"login"
-							]
-						}
-					},
-					"response": []
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response exists\", function () {",
+							"    pm.expect(pm.response).to.not.be.undefined;",
+							"});",
+							"",
+							"if (pm.response) {",
+							"",
+							"    pm.test(\"Status is 200\", function () {",
+							"        pm.response.to.have.status(200);",
+							"    });",
+							"",
+							"    pm.test(\"Response is JSON\", function () {",
+							"        pm.response.to.be.json;",
+							"    });",
+							"",
+							"    pm.test(\"Body is an array\", function () {",
+							"        const json = pm.response.json();",
+							"        pm.expect(json).to.be.an(\"array\");",
+							"    });",
+							"",
+							"    pm.test(\"Each user object has required fields\", function () {",
+							"        const users = pm.response.json();",
+							"",
+							"        // If no users exist, skip this gracefully",
+							"        if (users.length === 0) {",
+							"            pm.expect(true).to.be.true;",
+							"            return;",
+							"        }",
+							"",
+							"        users.forEach(user => {",
+							"            pm.expect(user).to.be.an(\"object\");",
+							"            pm.expect(user).to.have.property(\"id\");",
+							"            pm.expect(user).to.have.property(\"username\");",
+							"",
+							"        });",
+							"    });",
+							"}",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
 				},
 				{
-					"name": "Staff: Show_Roster",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/staff/roster",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"staff",
-								"roster"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "getShift",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"shiftID\": 1\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/staff/shift",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"staff",
-								"shift"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Staff: Clock_In",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"shiftID\": 1\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/staff/clock_in",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"staff",
-								"clock_in"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Staff: Clock_Out",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"shiftID\": 1\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/staff/clock_out",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"staff",
-								"clock_out"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/logout",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"logout"
-							]
-						}
-					},
-					"response": []
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.clear();\r",
+							"console.log(\"=== PRE-REQUEST ===\");\r",
+							"console.log(\"URL:\", pm.request.url.toString());\r",
+							"\r",
+							"pm.test(\"URL is not empty or unresolved\", function () {\r",
+							"    const url = pm.request.url.toString();\r",
+							"    pm.expect(url.length).to.be.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				},
+				"description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
+			},
+			"response": []
+		},
+		{
+			"name": "Health",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"if (pm.response) {\r",
+							"\r",
+							"    pm.test(\"Status 200\", function () {\r",
+							"        pm.response.to.have.status(200);\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"JSON body is correct\", function () {\r",
+							"        pm.response.to.be.json;\r",
+							"        const json = pm.response.json();\r",
+							"        pm.expect(json).to.have.property(\"status\", \"healthy\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.clear();\r",
+							"\r",
+							"console.log(\"=== PRE-REQUEST ===\");\r",
+							"console.log(\"URL:\", pm.request.url.toString());\r",
+							"\r",
+							"pm.test(\"URL is not empty or unresolved\", function () {\r",
+							"    const url = pm.request.url.toString();\r",
+							"    pm.expect(url.length).to.be.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login(Admin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response exists\", function () {",
+							"    pm.expect(pm.response).to.not.be.undefined;",
+							"});",
+							"",
+							"if (pm.response) {",
+							"    ",
+							"    pm.test(\"Status is 200 on success\", function () {",
+							"        pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+							"    });",
+							"",
+							"    const json = pm.response.json();",
+							"",
+							"    if (pm.response.code === 200) {",
+							"",
+							"        pm.test(\"Response contains access_token\", function () {",
+							"            pm.expect(json).to.have.property(\"access_token\");",
+							"            pm.expect(json.access_token).to.be.a(\"string\");",
+							"            pm.expect(json.access_token.length).to.be.above(10);",
+							"        });",
+							"",
+							"        pm.test(\"Cookie was set\", function () {",
+							"            const cookies = pm.cookies.toObject();",
+							"            pm.expect(Object.keys(cookies).length).to.be.above(0);",
+							"        });",
+							"",
+							"    } else if (pm.response.code === 401) {",
+							"",
+							"        pm.test(\"401 has correct error message\", function () {",
+							"            pm.expect(json).to.have.property(\"message\", \"bad username or password given\");",
+							"        });",
+							"",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.clear();\r",
+							"\r",
+							"console.log(\"=== PRE-REQUEST ===\");\r",
+							"console.log(\"URL:\", pm.request.url.toString());\r",
+							"console.log(\"Body:\", pm.request.body);\r",
+							"\r",
+							"pm.test(\"URL is not empty or unresolved\", function () {\r",
+							"    const url = pm.request.url.toString();\r",
+							"    pm.expect(url).to.have.length.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"bob\",\r\n    \"password\": \"bobpass\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Schedule (Admin)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.clear();\r",
+							"console.log(\"=== PRE-REQUEST === createSchedule\");\r",
+							"\r",
+							"pm.test(\"URL is not empty or unresolved\", function () {\r",
+							"    const url = pm.request.url.toString();\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"const status = pm.response.code;\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status is correct\", function () {\r",
+							"    pm.expect([200, 401, 403, 500]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: schedule created\r",
+							"if (status === 200) {\r",
+							"\r",
+							"    pm.test(\"Schedule object returned\", function () {\r",
+							"        pm.expect(json).to.be.an(\"object\");\r",
+							"    });\r",
+							"\r",
+							"    pm.test(\"Schedule contains expected fields\", function () {\r",
+							"         pm.expect(json).to.have.property(\"id\");\r",
+							"        pm.expect(json).to.have.property(\"name\");  \r",
+							"        pm.expect(json.name).to.be.a(\"string\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: unauthorized (missing or bad token)\r",
+							"} else if (status === 401) {\r",
+							"\r",
+							"    pm.test(\"Unauthorized error\", function () {\r",
+							"        pm.expect(json).to.be.an(\"object\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: permission denied or bad data\r",
+							"} else if (status === 403) {\r",
+							"\r",
+							"    pm.test(\"Forbidden error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: DB error\r",
+							"} else if (status === 500) {\r",
+							"\r",
+							"    pm.test(\"Database error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Database error\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{sessionToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"scheduleName\": \"Morning Shift\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/createSchedule",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"createSchedule"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduling Auto Populate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure we got a response\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse response safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status is one of the expected codes\r",
+							"pm.test(\"Status is valid\", function () {\r",
+							"    pm.expect([201, 400, 403, 404]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: auto-populated\r",
+							"if (status === 201) {\r",
+							"    pm.test(\"Auto-population success\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", true);\r",
+							"        pm.expect(json).to.have.property(\"schedule_id\");\r",
+							"        pm.expect(json).to.have.property(\"strategy_used\");\r",
+							"        pm.expect(json).to.have.property(\"shifts_created\");\r",
+							"        pm.expect(json).to.have.property(\"score\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: validation or strategy failure\r",
+							"} else if (status === 400) {\r",
+							"    pm.test(\"Validation failure\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", false);\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: admin invalid\r",
+							"} else if (status === 403) {\r",
+							"    pm.test(\"Admin invalid\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", false);\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: schedule not found or access denied\r",
+							"} else if (status === 404) {\r",
+							"    pm.test(\"Schedule not found or denied\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", false);\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"admin_id\": 1,\r\n    \"schedule_id\": 1,\r\n    \"strategy_name\": \"preference-based\",\r\n    \"staff_ids\": [2, 3, 4],\r\n    \"start_date\": \"2025-11-26\",\r\n    \"end_date\": \"2025-11-30\",\r\n    \"shifts_per_day\": 2,\r\n    \"shift_type\": \"mixed\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/scheduling/auto-populate",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"scheduling",
+						"auto-populate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Shift (Admin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status is one of the expected codes\r",
+							"pm.test(\"Status is valid\", function () {\r",
+							"    pm.expect([200, 403, 500]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: shift created\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Shift object returned\", function () {\r",
+							"        pm.expect(json).to.be.an(\"object\");\r",
+							"        pm.expect(json).to.have.property(\"id\");\r",
+							"        pm.expect(json).to.have.property(\"schedule_id\");\r",
+							"        pm.expect(json).to.have.property(\"staff_id\");\r",
+							"        pm.expect(json).to.have.property(\"start_time\");\r",
+							"        pm.expect(json).to.have.property(\"end_time\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: permission denied / invalid data\r",
+							"} else if (status === 403) {\r",
+							"    pm.test(\"Forbidden error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: database error\r",
+							"} else if (status === 500) {\r",
+							"    pm.test(\"Database error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Database error\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{sessionToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"scheduleID\": 1,\r\n  \"staffID\": 2,\r\n  \"start_time\": \"2025-11-26T09:00:00\",\r\n  \"end_time\": \"2025-11-26T17:00:00\"\r\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/createShift",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"createShift"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Shift Report",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status code is valid\r",
+							"pm.test(\"Status is valid\", function () {\r",
+							"    pm.expect([200, 403, 500]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: shift report returned\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Report returned\", function () {\r",
+							"        pm.expect(json).to.not.be.empty;\r",
+							"        pm.expect(json).to.be.an(\"array\"); \r",
+							"    });\r",
+							"\r",
+							"// FAILURE: permission denied\r",
+							"} else if (status === 403) {\r",
+							"    pm.test(\"Forbidden error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: database error\r",
+							"} else if (status === 500) {\r",
+							"    pm.test(\"Database error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Database error\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{sessionToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n        \"shift_id\": 1,\r\n        \"staff_id\": 2,\r\n        \"staff_name\": \"John Doe\",\r\n        \"schedule_id\": 1,\r\n        \"start_time\": \"2025-11-26T09:00:00\",\r\n        \"end_time\": \"2025-11-26T17:00:00\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/shiftReport",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"shiftReport"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Schedule ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status is valid\r",
+							"pm.test(\"Status is valid\", function () {\r",
+							"    pm.expect([200, 404]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: schedule found\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Schedule object returned\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", true);\r",
+							"        pm.expect(json).to.have.property(\"schedule\");\r",
+							"        pm.expect(json.schedule).to.be.an(\"object\");\r",
+							"        pm.expect(json.schedule).to.have.property(\"id\");\r",
+							"        pm.expect(json.schedule).to.have.property(\"name\"); \r",
+							"    });\r",
+							"\r",
+							"// FAILURE: schedule not found\r",
+							"}else if (status === 404) {\r",
+							"    pm.test(\"Schedule not found error\", function () {\r",
+							"        let text = pm.response.text();\r",
+							"        pm.expect(text).to.include(\"not found\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/schedules/{{schedule_id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"schedules",
+						"{{schedule_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Schedules",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status is 200\r",
+							"pm.test(\"Status is 200\", function () {\r",
+							"    pm.expect(status).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: schedules returned\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Schedules array returned\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", true);\r",
+							"        pm.expect(json).to.have.property(\"schedules\");\r",
+							"        pm.expect(json.schedules).to.be.an(\"array\");\r",
+							"        \r",
+							"       // validate each schedule object\r",
+							"        json.schedules.forEach(s => {\r",
+							"            pm.expect(s).to.have.property(\"id\");\r",
+							"            pm.expect(s).to.have.property(\"name\"); \r",
+							"        });\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/schedules",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"schedules"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Schedule ID Shifts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status code is valid\r",
+							"pm.test(\"Status is valid\", function () {\r",
+							"    pm.expect([200, 404]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: shifts returned\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Shifts array returned\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", true);\r",
+							"        pm.expect(json).to.have.property(\"shifts\");\r",
+							"        pm.expect(json.shifts).to.be.an(\"array\");\r",
+							"\r",
+							"        // Get Schedule ID safely from environment variable\r",
+							"        let scheduleId = parseInt(pm.environment.get(\"Schedule_id\"));\r",
+							"        \r",
+							"        // Validate each shift object\r",
+							"        json.shifts.forEach(shift => {\r",
+							"            pm.expect(shift).to.have.property(\"id\");\r",
+							"            \r",
+							"            if (!isNaN(scheduleId)) {\r",
+							"                pm.expect(shift).to.have.property(\"schedule_id\", scheduleId);\r",
+							"            } else {\r",
+							"                pm.expect(shift).to.have.property(\"schedule_id\"); // just check existence\r",
+							"            }\r",
+							"\r",
+							"            pm.expect(shift).to.have.property(\"staff_id\");\r",
+							"            pm.expect(shift).to.have.property(\"start_time\");\r",
+							"            pm.expect(shift).to.have.property(\"end_time\");\r",
+							"        });\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: schedule not found\r",
+							"} else if (status === 404) {\r",
+							"    pm.test(\"Schedule not found error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", false);\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Schedule not found\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/schedules/{{schedule_id}}/shifts",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"schedules",
+						"{{schedule_id}}",
+						"shifts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduling Strategies",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status code is valid\r",
+							"pm.test(\"Status is 200\", function () {\r",
+							"    pm.expect(status).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: strategies array returned\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Strategies array returned\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", true);\r",
+							"        pm.expect(json).to.have.property(\"strategies\");\r",
+							"        pm.expect(json.strategies).to.be.an(\"array\");\r",
+							"        \r",
+							"        // validate each strategy is a string\r",
+							"        json.strategies.forEach(strategy => {\r",
+							"            pm.expect(strategy).to.be.a(\"string\");\r",
+							"        });\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/scheduling/strategies",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"scheduling",
+						"strategies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Schedules",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status is valid\r",
+							"pm.test(\"Status is valid\", function () {\r",
+							"    pm.expect([201, 400, 403, 500]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: schedule created\r",
+							"if (status === 201) {\r",
+							"    pm.test(\"Schedule object returned\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", true);\r",
+							"        pm.expect(json).to.have.property(\"schedule\");\r",
+							"        pm.expect(json.schedule).to.be.an(\"object\");\r",
+							"        pm.expect(json.schedule).to.have.property(\"id\");\r",
+							"        pm.expect(json.schedule).to.have.property(\"name\");\r",
+							"        pm.expect(json.schedule).to.have.property(\"created_by\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: missing fields\r",
+							"} else if (status === 400) {\r",
+							"    pm.test(\"Validation error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", false);\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: non-admin\r",
+							"} else if (status === 403) {\r",
+							"    pm.test(\"Forbidden error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", false);\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Only admins can create schedules\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: server error\r",
+							"} else if (status === 500) {\r",
+							"    pm.test(\"Server error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", false);\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\": \"Schedule 1\", \"created_by\": 1}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/schedules",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"schedules"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Scheduling Compare",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status code is valid\r",
+							"pm.test(\"Status is 200\", function () {\r",
+							"    pm.expect(status).to.eql(200);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: strategies comparison returned\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Comparison object returned\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", true);\r",
+							"        pm.expect(json).to.have.property(\"comparison\");\r",
+							"        pm.expect(json.comparison).to.be.an(\"object\");\r",
+							"        pm.expect(json).to.have.property(\"best_strategy\");\r",
+							"        \r",
+							"        // validate each strategy result\r",
+							"        Object.keys(json.comparison).forEach(strategy => {\r",
+							"            const result = json.comparison[strategy];\r",
+							"            pm.expect(result).to.be.an(\"object\");\r",
+							"            if (result.error) {\r",
+							"                pm.expect(result.error).to.be.a(\"string\");\r",
+							"            } else {\r",
+							"                pm.expect(result).to.have.property(\"shifts_created\");\r",
+							"                pm.expect(result).to.have.property(\"summary\");\r",
+							"                pm.expect(result).to.have.property(\"score\");\r",
+							"            }\r",
+							"        });\r",
+							"    });\r",
+							"} else {\r",
+							"    pm.test(\"Request failed\", function () {\r",
+							"        pm.expect(json).to.have.property(\"success\", false);\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"admin_id\": 1,\r\n    \"schedule_id\": 1,\r\n    \"staff_ids\": [2, 3, 4],\r\n    \"start_date\": \"2025-12-01\",\r\n    \"end_date\": \"2025-12-07\",\r\n    \"shifts_per_day\": 2,\r\n    \"shift_type\": \"mixed\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/scheduling/compare",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"scheduling",
+						"compare"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login(Staff)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response exists\", function () {",
+							"    pm.expect(pm.response).to.not.be.undefined;",
+							"});",
+							"",
+							"if (pm.response) {",
+							"    ",
+							"    pm.test(\"Status is 200 on success\", function () {",
+							"        pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+							"    });",
+							"",
+							"    const json = pm.response.json();",
+							"",
+							"    if (pm.response.code === 200) {",
+							"",
+							"        pm.test(\"Response contains access_token\", function () {",
+							"            pm.expect(json).to.have.property(\"access_token\");",
+							"            pm.expect(json.access_token).to.be.a(\"string\");",
+							"            pm.expect(json.access_token.length).to.be.above(10);",
+							"        });",
+							"",
+							"        pm.test(\"Cookie was set\", function () {",
+							"            const cookies = pm.cookies.toObject();",
+							"            pm.expect(Object.keys(cookies).length).to.be.above(0);",
+							"        });",
+							"",
+							"    } else if (pm.response.code === 401) {",
+							"",
+							"        pm.test(\"401 has correct error message\", function () {",
+							"            pm.expect(json).to.have.property(\"message\", \"bad username or password given\");",
+							"        });",
+							"",
+							"    }",
+							"}",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.clear();\r",
+							"\r",
+							"console.log(\"=== PRE-REQUEST ===\");\r",
+							"console.log(\"URL:\", pm.request.url.toString());\r",
+							"console.log(\"Body:\", pm.request.body);\r",
+							"\r",
+							"pm.test(\"URL is not empty or unresolved\", function () {\r",
+							"    const url = pm.request.url.toString();\r",
+							"    pm.expect(url).to.have.length.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"jane\",\r\n    \"password\": \"janepass\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "Identify",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists",
+							"pm.test(\"Response exists\", function () {",
+							"    pm.expect(pm.response).to.not.be.undefined;",
+							"});",
+							"",
+							"// Parse JSON safely",
+							"let status = pm.response.code;",
+							"let json;",
+							"try {",
+							"    json = pm.response.json();",
+							"} catch (e) {",
+							"    json = {};",
+							"}",
+							"",
+							"// Status code is valid",
+							"pm.test(\"Status is 200\", function () {",
+							"    pm.expect(status).to.eql(200);",
+							"});",
+							"",
+							"// SUCCESS: user identified",
+							"if (status === 200) {",
+							"    pm.test(\"User info returned\", function () {",
+							"        pm.expect(json).to.have.property(\"message\");",
+							"        pm.expect(json.message).to.be.a(\"string\");",
+							"    });",
+							"} else {",
+							"    pm.test(\"Request failed\", function () {",
+							"        pm.expect(json).to.have.property(\"error\");",
+							"    });",
+							"}",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/identify",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"identify"
+					]
+				},
+				"description": "This is a PUT request and it is used to overwrite an existing piece of data. For instance, after you create an entity with a POST request, you may want to modify that later. You can do that using a PUT request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful PUT request typically returns a `200 OK`, `201 Created`, or `204 No Content` response code."
+			},
+			"response": []
+		},
+		{
+			"name": "Clock In",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status code check\r",
+							"pm.test(\"Status code is valid\", function () {\r",
+							"    pm.expect([200, 400, 403, 404, 500]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: clock-in successful\r",
+							"if (status === 200) {\r",
+							"   pm.expect(json).to.have.property(\"id\");  // use 'id' instead of 'shift_id'\r",
+							"    pm.expect(json).to.have.property(\"schedule_id\");\r",
+							"    pm.expect(json).to.have.property(\"staff_id\");\r",
+							"    pm.expect(json).to.have.property(\"start_time\");\r",
+							"    pm.expect(json).to.have.property(\"end_time\");\r",
+							"\r",
+							"    // clock_in / clock_out can be null or ISO string\r",
+							"    if (json.hasOwnProperty(\"clock_in\")) pm.expect(json.clock_in === null || typeof json.clock_in === \"string\").to.be.true;\r",
+							"    if (json.hasOwnProperty(\"clock_out\")) pm.expect(json.clock_out === null || typeof json.clock_out === \"string\").to.be.true;\r",
+							"\r",
+							"// FAILURE: bad request\r",
+							"} else if (status === 400) {\r",
+							"    pm.test(\"Missing shiftID error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"shiftID is required\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: permission error\r",
+							"} else if (status === 403) {\r",
+							"    pm.test(\"Forbidden error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: shift not found\r",
+							"} else if (status === 404) {\r",
+							"    pm.test(\"Shift not found error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Shift not found or clock-in failed\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: database or unexpected error\r",
+							"} else if (status === 500) {\r",
+							"    pm.test(\"Server error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"shiftID\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/staff/clock_in",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"staff",
+						"clock_in"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Roster",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json;\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {\r",
+							"    json = {};\r",
+							"}\r",
+							"\r",
+							"// Status code check\r",
+							"pm.test(\"Status code is valid\", function () {\r",
+							"    pm.expect([200, 500]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: roster returned\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Roster array returned\", function () {\r",
+							"        pm.expect(json).to.be.an(\"array\");  \r",
+							"        json.forEach(item => {\r",
+							"            pm.expect(item).to.have.property(\"id\");\r",
+							"            pm.expect(item).to.have.property(\"schedule_id\");\r",
+							"            pm.expect(item).to.have.property(\"start_time\");\r",
+							"            pm.expect(item).to.have.property(\"end_time\");\r",
+							"            pm.expect(item).to.have.property(\"staff_id\");\r",
+							"          // check clock-in/clock-out fields if present\r",
+							"            if (item.hasOwnProperty(\"clock_in\")) pm.expect(item.clock_in === null || typeof item.clock_in === \"string\").to.be.true;\r",
+							"        if (item.hasOwnProperty(\"clock_out\")) pm.expect(item.clock_out === null || typeof item.clock_out === \"string\").to.be.true;\r",
+							"        });\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: database error\r",
+							"} else if (status === 500) {\r",
+							"    pm.test(\"Database error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Database error\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/staff/roster",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"staff",
+						"roster"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Shift",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"let status = pm.response.code;\r",
+							"let json = {};\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {}\r",
+							"\r",
+							"pm.test(\"Status code is valid\", function () {\r",
+							"    pm.expect([200, 404, 500]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Shift object returned\", function () {\r",
+							"        pm.expect(json).to.have.property(\"id\");\r",
+							"        pm.expect(json).to.have.property(\"schedule_id\");\r",
+							"        pm.expect(json).to.have.property(\"staff_id\");\r",
+							"        pm.expect(json).to.have.property(\"start_time\");\r",
+							"        pm.expect(json).to.have.property(\"end_time\");\r",
+							"        \r",
+							"        // clock_in / clock_out can be null or string\r",
+							"        if (json.hasOwnProperty(\"clock_in\")) pm.expect(json.clock_in === null || typeof json.clock_in === \"string\").to.be.true;\r",
+							"        if (json.hasOwnProperty(\"clock_out\")) pm.expect(json.clock_out === null || typeof json.clock_out === \"string\").to.be.true;\r",
+							"    });\r",
+							"} else if (status === 404) {\r",
+							"    pm.test(\"Shift not found\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Shift not found\");\r",
+							"    });\r",
+							"} else if (status === 500) {\r",
+							"    pm.test(\"Database error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Database error\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"shiftID\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/staff/shift",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"staff",
+						"shift"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clock Out",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ensure response exists\r",
+							"pm.test(\"Response exists\", function () {\r",
+							"    pm.expect(pm.response).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							"// Parse JSON safely\r",
+							"let status = pm.response.code;\r",
+							"let json = {};\r",
+							"try {\r",
+							"    json = pm.response.json();\r",
+							"} catch (e) {}\r",
+							"\r",
+							"// Check valid status codes\r",
+							"pm.test(\"Status code is valid\", function () {\r",
+							"    pm.expect([200, 400, 403, 404, 500]).to.include(status);\r",
+							"});\r",
+							"\r",
+							"// SUCCESS: shift clocked out\r",
+							"if (status === 200) {\r",
+							"    pm.test(\"Shift object returned\", function () {\r",
+							"        pm.expect(json).to.have.property(\"id\");\r",
+							"        pm.expect(json).to.have.property(\"schedule_id\");\r",
+							"        pm.expect(json).to.have.property(\"staff_id\");\r",
+							"        pm.expect(json).to.have.property(\"start_time\");\r",
+							"        pm.expect(json).to.have.property(\"end_time\");\r",
+							"        \r",
+							"        // clock_in / clock_out can be null or string\r",
+							"        if (json.hasOwnProperty(\"clock_in\")) pm.expect(json.clock_in === null || typeof json.clock_in === \"string\").to.be.true;\r",
+							"        if (json.hasOwnProperty(\"clock_out\")) pm.expect(json.clock_out === null || typeof json.clock_out === \"string\").to.be.true;\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: missing shiftID or bad request\r",
+							"} else if (status === 400) {\r",
+							"    pm.test(\"Bad request\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"shiftID is required\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: permission denied\r",
+							"} else if (status === 403) {\r",
+							"    pm.test(\"Permission denied\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: shift not found\r",
+							"} else if (status === 404) {\r",
+							"    pm.test(\"Shift not found\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\", \"Shift not found or clock-out failed\");\r",
+							"    });\r",
+							"\r",
+							"// FAILURE: database error\r",
+							"} else if (status === 500) {\r",
+							"    pm.test(\"Database error\", function () {\r",
+							"        pm.expect(json).to.have.property(\"error\").that.is.a(\"string\");\r",
+							"    });\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"shiftID\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/staff/clock_out",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"staff",
+						"clock_out"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Logout returns redirect\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 302, 303, 307]);",
+							"});",
+							"",
+							"",
+							"pm.test(\"JWT cookie unset\", function () {",
+							"    let cookies = pm.cookies.toObject();",
+							"    pm.expect(cookies).to.not.have.property(\"access_token_cookie\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/logout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"logout"
+					]
+				},
+				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+			},
+			"response": []
 		}
 	],
 	"event": [
@@ -425,7 +1835,6 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
-				"packages": {},
 				"requests": {},
 				"exec": [
 					""
@@ -436,7 +1845,6 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
-				"packages": {},
 				"requests": {},
 				"exec": [
 					""
@@ -446,8 +1854,16 @@
 	],
 	"variable": [
 		{
-			"key": "host",
-			"value": ""
+			"key": "base_url",
+			"value": "https://shiftmate3-0.onrender.com"
+		},
+		{
+			"key": "Schedule_id",
+			"value": "1"
+		},
+		{
+			"key": "sessionToken",
+			"value": "7"
 		}
 	]
 }

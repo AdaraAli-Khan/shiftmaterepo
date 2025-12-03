@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "f249aa46-53c8-4d72-abe6-a6dc8b1147f7",
 		"name": "API Test",
-		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" width=\"2162\" height=\"1530\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_uid": "33787611-f249aa46-53c8-4d72-abe6-a6dc8b1147f7"
 	},
@@ -60,7 +60,8 @@
 			],
 			"id": "bca6ebd1-fd74-454a-b279-98c4b472c619",
 			"protocolProfileBehavior": {
-				"disableBodyPruning": true
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
 			},
 			"request": {
 				"method": "GET",
@@ -843,14 +844,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/api/schedules/{{Schedule_id}}",
+					"raw": "{{baseUrl}}/api/schedules/{{schedule_id}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
 						"schedules",
-						"{{Schedule_id}}"
+						"{{schedule_id}}"
 					]
 				}
 			},
@@ -1001,14 +1002,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/api/schedules/{{Schedule_id}}/shifts",
+					"raw": "{{baseUrl}}/api/schedules/{{schedule_id}}/shifts",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
 						"schedules",
-						"{{Schedule_id}}",
+						"{{schedule_id}}",
 						"shifts"
 					]
 				}
@@ -1926,7 +1927,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "930e7d90-5b46-400e-80ad-ac5d5a95f841",
+				"id": "ee02e7a0-0b6a-43fd-99f8-a05c1bc3c10f",
 				"type": "text/javascript",
 				"requests": {},
 				"exec": [
@@ -1937,7 +1938,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "359286af-0e6d-4d10-81ed-5d05d2a888b9",
+				"id": "5f5b01f3-fd48-4f42-8405-19cd0ac75386",
 				"type": "text/javascript",
 				"requests": {},
 				"exec": [
@@ -1948,9 +1949,19 @@
 	],
 	"variable": [
 		{
-			"id": "10974c8f-d1f3-4b81-8d6e-a271527cc59a",
+			"id": "0576b669-df13-4173-82bf-8d815bc92d84",
 			"key": "base_url",
-			"value": "https://template.postman-echo.com"
+			"value": "https://shiftmate3-0.onrender.com"
+		},
+		{
+			"id": "503f0eb3-d6e9-4aab-a185-95eb9233d757",
+			"key": "Schedule_id",
+			"value": "1"
+		},
+		{
+			"id": "2336f8db-d49a-4166-88ba-2e476c3cef5e",
+			"key": "sessionToken",
+			"value": "7"
 		}
 	]
 }
