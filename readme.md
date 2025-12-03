@@ -347,6 +347,9 @@ The `wsgi.py` `test` group exposes a small helper for running the `User` test gr
 # Run all user tests
 flask test user
 
+# Run all unit and integration tests
+flask test-all
+
 # Run only user unit tests
 flask test user unit
 
