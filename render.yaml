@@ -1,43 +1,29 @@
-
 services:
-- type: web
-  name: flask-postgres-api
-  env: python
-  repo: https://github.com/uwidcit/flaskmvc.git
-  plan: free
-  branch: main
-  healthCheckPath: /healthcheck
-  buildCommand: "pip install -r requirements.txt"
-  startCommand: "gunicorn wsgi:app"
-  envVars:
-  - fromGroup: flask-postgres-api-settings
-  - key: POSTGRES_URL
-    fromDatabase:
-      name: flask-postgres-api-db
-      property: host
-  - key: POSTGRES_USER
-    fromDatabase:
-      name: flask-postgres-api-db
-      property: user
-  - key: POSTGRES_PASSWORD
-    fromDatabase:
-      name: flask-postgres-api-db
-      property: password
-  - key: POSTGRES_DB
-    fromDatabase:
-      name: flask-postgres-api-db
-      property: database 
+  - type: web
+    name: shiftmate3.0
+    env: python
+    plan: free
+    branch: Deployment
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn App.main:app"
+    envVars:
+      - fromGroup: shiftmate3-settings
+      - key: FLASK_SQLALCHEMY_DATABASE_URI
+        value: "postgresql://shiftmate_db_ioie_user:hUbLj1TBqxFcMCQd7uf6eSzWLnviolHE@dpg-d4nj0veuk2gs739q3tb0-a/shiftmate_db_ioie"
 
 envVarGroups:
-- name: flask-postgres-api-settings
-  envVars:
-  - key: ENV
-    value: production
-  - key: FLASK_APP
-    value: wsgi.py
-    
+  - name: shiftmate3-settings
+    envVars:
+      - key: FLASK_ENV
+        value: "PRODUCTION"
+
+      - key: FLASK_SECRET_KEY
+        value: "eee60a29b02f6f78a19aa0ba2bf9a9ad740aeae67086de133486489a7843cf9e"
+
+      - key: FLASK_JWT_ACCESS_TOKEN_EXPIRES
+        value: "7"
 
 databases:
-- name: flask-postgres-api-db
-  plan: free
-  databaseName: mydb
+  - name: shiftmate3-db
+    plan: free
+    databaseName: shiftmate_db_ioie
