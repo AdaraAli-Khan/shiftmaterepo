@@ -43,6 +43,8 @@ $ flask run
 _The Postman Collection is available here:_ <br>
 https://technocrats-1703.postman.co/workspace/TechnoCrats-Workspace~b8d276e5-e552-4175-9811-6bb3893203f9/collection/33787611-dfd6d2cb-ec5e-4bf5-b4b0-912502e9915b?action=share&source=copy-link&creator=33787611
 
+### Postman CLI Install
+`curl -o- "https://dl-cli.pstmn.io/install/unix.sh" | sh`
 
 ## 🖥️ CLI Reference
 ShiftMate exposes a series of CLI tools through wsgi.py.
