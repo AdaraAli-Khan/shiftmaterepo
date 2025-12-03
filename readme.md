@@ -1,62 +1,100 @@
-# ShiftMate 3.0 — Flask MVC Workforce Scheduler
-ShiftMate 3.0 is a lightweight Flask-based workforce scheduling system for creating staff accounts, assigning shifts, tracking time, and generating simple reports. It includes automated scheduling strategies (even distribution, minimize days, and shift-type optimization) and per-staff preferences used by the scheduler.
+<h1 align= center> ShiftMate 3.0 — Flask MVC Workforce Scheduler </h1>
+ShiftMate 3.0 is a lightweight Flask-based workforce rostering system for creating staff accounts, assigning shifts, tracking time, and generating simple reports. It includes automated scheduling strategies (even distribution, minimize days, and shift-type optimization) and per-staff preferences used by the scheduler.
 
-Key features:
-- Create/manage users (admin & staff)
-- Create schedules and assign shifts
-- Clock in / clock out and basic attendance reporting
-- Auto-generate schedules with multiple strategies
-- Per-staff preferences influencing schedule generation
+<h2>Built With</h2>
+<p align="left">
+  <a href="https://skillicons.dev">
+    <img src="https://skillicons.dev/icons?i=flask,py,postman,vscode&perline=8" />
+  </a>
+</p>
 
-# Dependencies
+<h3>Key features:</h3>
+<li> 👥 User Management (admin & staff roles)</li>
+<li>📅 Create schedules & assign shifts</li>
+<li>⏱️ Clock-in / Clock-out tracking</li>
+<li>📊 Attendance & shift reporting</li>
+<li>🤖 Auto-generate schedules using strategies:</li>
+    <ul>even-distribute</ul>
+    <ul>minimize-days</ul>
+    <ul>preference-based</ul>
+    <ul>day-night-distribute</ul>
+<li>🎯 Per-staff preferences for shift type, skills, unavailability, and weekly hours</li>
+<br>
+
+<h1>📦 Installation & Setup</h1>
+
+## Dependencies
 * Python3/pip3
 * Packages listed in requirements.txt
 
 
-# Installing Dependencies
+## Installing Dependencies
 ```bash
 $ pip install -r requirements.txt
 ```
-# Running the Project
 
-_For development run the serve command (what you execute):_
+## Running the Project
+_For development run the server command (what you execute):_
 ```bash
 $ flask run
 ```
 
-# Postman Link
-"https://technocrats-1703.postman.co/workspace/TechnoCrats-Workspace~b8d276e5-e552-4175-9811-6bb3893203f9/collection/33787611-dfd6d2cb-ec5e-4bf5-b4b0-912502e9915b?action=share&source=copy-link&creator=33787611"
+## 📬 Postman Collection
+_The Postman Collection is available here:_ <br>
+https://technocrats-1703.postman.co/workspace/TechnoCrats-Workspace~b8d276e5-e552-4175-9811-6bb3893203f9/collection/33787611-dfd6d2cb-ec5e-4bf5-b4b0-912502e9915b?action=share&source=copy-link&creator=33787611
 
-# CLI Quick Reference
 
-The application exposes a number of convenient CLI groups via `wsgi.py`. Use `flask <group> <command>`.
-
-Authentication
+## 🖥️ CLI Reference
+ShiftMate exposes a series of CLI tools through wsgi.py.
+Run them using:
+```bash
+flask <group> <command>
+```
+### 🔐 Authentication
 - `flask auth login <username> <password>` — login and save a JWT token for CLI use
 - `flask auth logout <username>` — logout (removes saved token file)
 
-User management
+### 👥 User Management
 - `flask user create <username> <password> <role>` — create a user (role: `admin` or `staff`)
 - `flask user list [string|json]` — list users in text or JSON format
 
-Shifts
-- `flask shift schedule <staff_id> <schedule_id> <start_iso> <end_iso>` — schedule a shift (admin)
-- `flask shift roster` — show combined roster for logged-in staff
-- `flask shift clockin <shift_id>` — clock in (staff)
-- `flask shift clockout <shift_id>` — clock out (staff)
-- `flask shift report` — view shift report (admin)
+### 🕒 Shift Management
+- `flask shift schedule <staff_id> <schedule_id> <start_iso> <end_iso>` - Schedule a shift (admin only)
 
-Schedule management
+```bash
+Example:
+flask shift schedule 2 1 2025-10-01T09:00:00 2025-10-01T17:00:00
+````
+
+- `flask shift roster` - View Roster (staff only)
+
+- `flask shift clockin <shift_id>
+flask shift clockout <shift_id>` - Clock in / out (staff only)
+
+- `flask shift report` - View Shift Report (admin)
+
+### 📅 Schedule Management
 - `flask schedule create <name>` — create a schedule (admin)
+
 - `flask schedule list` — list schedules (admin)
+
 - `flask schedule view <schedule_id>` — view a schedule and its shifts (admin)
+
 - `flask schedule auto <schedule_id> <strategy> [--days N] [--shifts-per-day N] [--shift-type <type>]` — auto-generate shifts into an existing schedule (admin)
     - Example strategies: `even-distribute`, `minimize-days`, `preference-based`, `day-night-distribute`
     - Example: `flask schedule auto 1 even-distribute --days 14 --shifts-per-day 2 --shift-type mixed`
 
-Preferences (per-staff)
-The `prefs` CLI uses flags for each preference field. Examples:
+### 🎛️ Preferences (Staff Configuration)
+_Each staff member may define:_
 
+| Field                   | Description                  |
+| ----------------------- | ---------------------------- |
+| `preferred_shift_types` | e.g. `['morning','evening']` |
+| `skills`                | list of strings              |
+| `unavailable_days`      | integers `0–6` (Sunday=0)    |
+| `max_hours_per_week`    | integer hours limit          |
+
+The `prefs` CLI uses flags for each preference field. Examples:
 ```bash
 # set preferences using CLI flags
 flask prefs set <staff_id> --preferred "morning,evening" --skills "cashier" --unavailable "0,6" --max_hours 40
@@ -71,16 +109,16 @@ flask prefs list
 Note: the `--preferred`, `--skills`, and `--unavailable` flags accept comma-separated values when using the CLI; the controllers accept Python lists when called from code.
 
 
-# Complete CLI Workflow (run commands in order)
-The following sequence reproduces a typical run-through of the application using the CLI. You can run the commands with `flask` or `python -m flask` from the project root.
+# 🔄 Complete CLI Workflow (Recommended)
+This section provides a full example run of the system from DB initialization → scheduling → staff usage → reporting, application using the CLI. You can run the commands with `flask` or `python -m flask` from the project root.
 
-1) Initialize DB
+1) Initialize Database
 
 ```bash
 flask init
 ```
 
-2) Create users (admin + staff)
+2) Create admin & staff users
 
 ```bash
 flask user create admin adminpass admin
@@ -95,7 +133,7 @@ flask user create alice alicepass staff
 flask user list
 ```
 
-4) Admin login
+4) Login as Admin
 
 ```bash
 flask auth login admin adminpass
@@ -301,7 +339,7 @@ flask prefs get 5
 ```
 
 
-# Testing commands
+# 🧪 Testing
 
 The `wsgi.py` `test` group exposes a small helper for running the `User` test group:
 
