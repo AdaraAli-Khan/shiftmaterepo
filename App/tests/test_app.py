@@ -1487,7 +1487,6 @@ class UpdatedSchedulerIntegrationTests(unittest.TestCase):
         self.assertEqual(len(strategies), 5)
 
 
-# FIXTURES (keep these at the bottom)
 @pytest.fixture(autouse=True)
 def clean_db():
     db.drop_all()

@@ -593,3 +593,28 @@ def user_tests_command(type):
         sys.exit(pytest.main(["-k", "App"]))
     
 app.cli.add_command(test)
+
+@test.command('user')
+@click.argument('which', required=False)
+def user_tests(which):
+    """
+    Run user-related tests. Accepts:
+      - unit       -> run all tests with 'UnitTests' in the name
+      - integration-> run all tests with 'IntegrationTests' in the name
+      - (no arg)   -> run default user tests
+    """
+    if which == 'unit':
+        pytest_args = ['-k', 'UnitTests', '-q']
+    elif which == 'integration':
+        pytest_args = ['-k', 'IntegrationTests', '-q']
+    else:
+        pytest_args = []  # keep existing default behavior
+
+    rc = pytest.main(pytest_args)
+    sys.exit(rc)
+
+@app.cli.command("test-all", help="Run all pytest tests (unit + integration).")
+def test_all():
+    """Run entire test suite (unit + integration) with pytest -q."""
+    rc = pytest.main(['-q'])
+    sys.exit(rc)
