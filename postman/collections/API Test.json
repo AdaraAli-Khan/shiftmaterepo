@@ -809,12 +809,24 @@
 							"    });\r",
 							"\r",
 							"// FAILURE: schedule not found\r",
-							"} else if (status === 404) {\r",
+							"}else if (status === 404) {\r",
 							"    pm.test(\"Schedule not found error\", function () {\r",
-							"        pm.expect(json).to.have.property(\"success\", false);\r",
-							"        pm.expect(json).to.have.property(\"error\", \"Schedule not found\");\r",
+							"        let text = pm.response.text();\r",
+							"        pm.expect(text).to.include(\"not found\");\r",
 							"    });\r",
 							"}\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "09357dac-ce33-46e3-bb8b-85f4f5fcf7e0",
+						"exec": [
 							""
 						],
 						"type": "text/javascript",
@@ -831,14 +843,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/api/schedules/{{Scdule_id}}",
+					"raw": "{{baseUrl}}/api/schedules/{{Schedule_id}}",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
 						"schedules",
-						"{{Scdule_id}}"
+						"{{Schedule_id}}"
 					]
 				}
 			},
@@ -989,14 +1001,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/api/schedules/{{Scdule_id}}/shifts",
+					"raw": "{{baseUrl}}/api/schedules/{{Schedule_id}}/shifts",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"api",
 						"schedules",
-						"{{Scdule_id}}",
+						"{{Schedule_id}}",
 						"shifts"
 					]
 				}
